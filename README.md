@@ -1,19 +1,37 @@
 # STRIX Termux node
 
-Runs on your phone. Signs buys and sells itself. Phantom is not asked.
+A Termux-friendly STRIX research/simulation node.
 
-The private key never leaves the phone. Do not paste it into the website.
+## Install
 
-```
+```bash
 pkg update -y
 pkg install -y git nodejs-lts
 git clone https://github.com/maestrokeith/strix-termux.git
 cd strix-termux
+cp .env.example .env
+nano .env
 bash start.sh
 ```
 
-Export the key in Phantom → Settings → Security & Privacy → Export Private Key.
-Paste it after `STRIX_SECRET=` in `.env` when nano opens.
+The repository is configured for **simulation mode by default**.
 
-Keep Termux in the foreground or use `termux-wake-lock` (start.sh already does).
-Optional: `npx -y cloudflared tunnel --url http://127.0.0.1:8787` then paste that URL on the STRIX desk to let the website hunt through this node.
+- `.env` is ignored by Git and stays on the phone.
+- Do not commit passwords, API keys, seed phrases, or wallet private keys.
+- `node_modules` is ignored.
+- The local service listens on port `8787` by default.
+
+## Quick verification
+
+```bash
+cd ~/strix-termux
+git status
+grep '^STRIX_DRY=' .env
+bash start.sh
+```
+
+Expected setting:
+
+```
+STRIX_DRY=1
+```
