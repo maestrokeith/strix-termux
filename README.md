@@ -12,10 +12,8 @@ cd strix-termux
 bash start.sh
 ```
 
-If clone fails, make the GitHub repo **Public** (it has no key) or use a personal access token.
-
 Export the key in Phantom → Settings → Security & Privacy → Export Private Key.
 Paste it after `STRIX_SECRET=` in `.env` when nano opens.
 
-Keep Termux in the foreground. `start.sh` already calls `termux-wake-lock`.
-Optional: `npx -y cloudflared tunnel --url http://127.0.0.1:8787` then paste that URL on the STRIX desk.
+Keep Termux in the foreground or use `termux-wake-lock` (start.sh already does).
+Optional: `npx -y cloudflared tunnel --url http://127.0.0.1:8787` then paste that URL on the STRIX desk to let the website hunt through this node.
