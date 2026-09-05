@@ -27,8 +27,8 @@ loadEnv();
 
 const SECRET = (process.env.STRIX_SECRET || "").trim();
 const PORT = Number(process.env.PORT || 8787);
-const RESERVE = Number(process.env.STRIX_RESERVE || 0.015);
-const MAX_ORDER = Number(process.env.STRIX_MAX_ORDER || 0.055);
+const RESERVE = Number(process.env.STRIX_RESERVE || 0.01);
+const MAX_ORDER = Number(process.env.STRIX_MAX_ORDER || 0.08);
 const AUTOPILOT = (process.env.STRIX_AUTOPILOT || "0") !== "0";
 const DRY = (process.env.STRIX_DRY || "1") === "1";
 
@@ -241,7 +241,7 @@ async function scan() {
 function orderLamports() {
   const spendable = Math.max(0, state.sol - RESERVE);
   if (spendable < 0.025) return 0;
-  return Math.floor(Math.min(MAX_ORDER, spendable * 0.08, spendable - 0.002) * 1e9);
+  return Math.floor(Math.min(MAX_ORDER, spendable * 0.12, spendable - 0.002) * 1e9);
 }
 
 async function buy(t) {
@@ -291,11 +291,11 @@ async function manage() {
     const roi = ((p.price - p.entryPrice) / Math.max(1e-12, p.entryPrice)) * 100;
     const age = Date.now() - p.openedAt;
     try {
-      if (roi <= -6) await sell(p, 1, "stop");
+      if (roi <= -8) await sell(p, 1, "stop");
       else if (age > 90_000 && roi < 10) await sell(p, 1, "timer");
-      else if (p.remaining > 0.4 && roi >= 10) await sell(p, 0.7, "tp1");
-      else if (roi >= 18) {
-        const floor = p.peak * 0.94;
+      else if (p.remaining > 0.3 && roi >= 14) await sell(p, 0.75, "tp1");
+      else if (roi >= 28) {
+        const floor = p.peak * 0.93;
         if (p.price <= floor) await sell(p, 1, "trail");
       }
     } catch (err) {
@@ -320,7 +320,7 @@ async function hunt() {
       }
     }
     await manage();
-    if (open.length >= 3) return;
+    if (open.length >= 2) return;
     if (state.sol < RESERVE + 0.025) return;
     const next = tape.find((t) => bestBook(t) && !state.attempted.has(t.mint) && !open.some((p) => p.mint === t.mint));
     if (!next) return;
