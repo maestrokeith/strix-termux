@@ -29,20 +29,22 @@ const SECRET = (process.env.STRIX_SECRET || "").trim();
 const PORT = Number(process.env.PORT || 8787);
 const RESERVE = Number(process.env.STRIX_RESERVE || 0.015);
 const MAX_ORDER = Number(process.env.STRIX_MAX_ORDER || 0.055);
-const AUTOPILOT = (process.env.STRIX_AUTOPILOT || "1") !== "0";
-const DRY = (process.env.STRIX_DRY || "0") === "1";
-
-if (!SECRET) {
-  console.error("STRIX_SECRET missing in .env");
-  process.exit(1);
-}
+const AUTOPILOT = (process.env.STRIX_AUTOPILOT || "0") !== "0";
+const DRY = (process.env.STRIX_DRY || "1") === "1";
 
 function parseKey(s) {
   const t = s.trim();
   if (t.startsWith("[")) return Keypair.fromSecretKey(Uint8Array.from(JSON.parse(t)));
   return Keypair.fromSecretKey(bs58.decode(t));
 }
-const kp = parseKey(SECRET);
+
+if (!DRY && !SECRET) {
+  console.error("Live mode requires STRIX_SECRET in .env");
+  process.exit(1);
+}
+
+// Simulation mode uses a temporary in-memory keypair and never needs a real wallet secret.
+const kp = SECRET ? parseKey(SECRET) : Keypair.generate();
 const pubkey = kp.publicKey.toBase58();
 
 const state = {
